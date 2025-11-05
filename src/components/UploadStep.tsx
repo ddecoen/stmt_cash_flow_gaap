@@ -29,6 +29,11 @@ function UploadStep({
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      preview: 0,
+      beforeFirstChunk: (chunk) => {
+        const lines = chunk.split('\n');
+        return lines.slice(6).join('\n');
+      },
       transformHeader: (header: string) => {
         return header.replace(/^\uFEFF/, '').trim();
       },
@@ -89,6 +94,11 @@ function UploadStep({
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      preview: 0,
+      beforeFirstChunk: (chunk) => {
+        const lines = chunk.split('\n');
+        return lines.slice(6).join('\n');
+      },
       transformHeader: (header: string) => {
         return header.replace(/^\uFEFF/, '').trim();
       },
