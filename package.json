@@ -1,0 +1,39 @@
+{
+  "name": "stmt-cash-flow-gaap",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A tool for generating U.S. GAAP compliant indirect method statements of cash flows from NetSuite quarterly income statement exports.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddecoen/stmt_cash_flow_gaap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ddecoen/stmt_cash_flow_gaap/issues"
+  },
+  "homepage": "https://github.com/ddecoen/stmt_cash_flow_gaap#readme",
+  "dependencies": {
+    "@types/papaparse": "^5.5.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "papaparse": "^5.5.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "vite": "^7.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3"
+  }
+}

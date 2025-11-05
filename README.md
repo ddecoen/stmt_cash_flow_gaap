@@ -10,6 +10,36 @@ This tool transforms quarterly income statement data and comparative quarterly d
 - **Cash Flows from Investing Activities** - Cash used for or generated from investments in long-term assets
 - **Cash Flows from Financing Activities** - Cash flows related to debt, equity, and dividends
 
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ddecoen/stmt_cash_flow_gaap.git
+cd stmt_cash_flow_gaap
+
+# Install dependencies
+npm install
+```
+
+## Development
+
+```bash
+# Start the development server
+npm run dev
+
+# The application will be available at http://localhost:5173
+```
+
+## Building for Production
+
+```bash
+# Build the application
+npm run build
+
+# Preview the production build
+npm run preview
+```
+
 ## Input Requirements
 
 ### Required CSV Files
@@ -54,13 +84,35 @@ The indirect method starts with net income and adjusts for:
 
 ## Usage
 
-```bash
-# Install dependencies
-# (Add installation instructions based on your implementation)
+The application provides a step-by-step wizard interface to generate your cash flow statement:
 
-# Run the tool
-# (Add usage instructions based on your implementation)
-```
+### Step 1: Upload
+1. Upload your **Comparative Balance Sheet** CSV file (containing two consecutive periods)
+2. Upload your **Income Statement** CSV file (current period)
+3. Click Continue once both files are uploaded
+
+### Step 2: Enter Balances
+Enter the required information:
+- **Cash Balances**: Beginning and ending cash amounts
+- **Operating Activities Adjustments**: 
+  - Depreciation and amortization
+  - Changes in accounts receivable (increase is negative)
+  - Changes in inventory (increase is negative)
+  - Changes in accounts payable (increase is positive)
+  - Changes in accrued liabilities (increase is positive)
+- **Investing Activities**: Capital expenditures
+- **Financing Activities**: 
+  - Proceeds from debt
+  - Debt repayments
+  - Dividends paid
+
+### Step 3: Generate
+The application automatically generates your cash flow statement using the indirect method.
+
+### Step 4: Export
+View your completed statement and:
+- **Print** the statement for physical records
+- **Export to CSV** for further analysis or import into other systems
 
 ## Output
 
@@ -112,9 +164,13 @@ The tool uses predefined rules to classify accounts into appropriate cash flow c
 - Transaction nature
 - GAAP classification requirements
 
-## Configuration
+## Technology Stack
 
-(Add configuration options as implemented in your tool)
+- **React** - User interface framework
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Fast build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Papa Parse** - CSV parsing library
 
 ## Contributing
 
@@ -122,7 +178,7 @@ Contributions are welcome. Please ensure any changes maintain GAAP compliance an
 
 ## License
 
-(Add your license information)
+MIT
 
 ## Support
 
