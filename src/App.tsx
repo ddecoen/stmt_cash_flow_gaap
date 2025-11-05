@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { WizardStep, BalanceSheetData, IncomeStatementData, BalanceInputs, CashFlowStatement } from './types';
+import { WizardStep, BalanceSheetData, IncomeStatementData, BalanceInputs, CashFlowStatement, ExtractedData } from './types';
+import { extractDataFromCSVs } from './utils/csvExtractor';
 import UploadStep from './components/UploadStep';
 import BalancesStep from './components/BalancesStep';
 import GenerateStep from './components/GenerateStep';
@@ -10,15 +11,24 @@ function App() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('upload');
   const [balanceSheetData, setBalanceSheetData] = useState<BalanceSheetData[]>([]);
   const [incomeStatementData, setIncomeStatementData] = useState<IncomeStatementData[]>([]);
+  const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [balanceInputs, setBalanceInputs] = useState<BalanceInputs | null>(null);
   const [cashFlowStatement, setCashFlowStatement] = useState<CashFlowStatement | null>(null);
 
   const handleBalanceSheetUpload = (data: BalanceSheetData[]) => {
     setBalanceSheetData(data);
+    if (incomeStatementData.length > 0) {
+      const extracted = extractDataFromCSVs(incomeStatementData, data);
+      setExtractedData(extracted);
+    }
   };
 
   const handleIncomeStatementUpload = (data: IncomeStatementData[]) => {
     setIncomeStatementData(data);
+    if (balanceSheetData.length > 0) {
+      const extracted = extractDataFromCSVs(data, balanceSheetData);
+      setExtractedData(extracted);
+    }
   };
 
   const handleBalanceInputsSubmit = (inputs: BalanceInputs) => {
@@ -54,18 +64,18 @@ function App() {
               />
             )}
 
-            {currentStep === 'balances' && (
+            {currentStep === 'balances' && extractedData && (
               <BalancesStep
-                incomeStatementData={incomeStatementData}
+                extractedData={extractedData}
                 onSubmit={handleBalanceInputsSubmit}
                 onBack={() => setCurrentStep('upload')}
               />
             )}
 
-            {currentStep === 'generate' && (
+            {currentStep === 'generate' && extractedData && balanceInputs && (
               <GenerateStep
-                incomeStatementData={incomeStatementData}
-                balanceInputs={balanceInputs!}
+                extractedData={extractedData}
+                balanceInputs={balanceInputs}
                 onGenerate={handleGenerateStatement}
                 onBack={() => setCurrentStep('balances')}
               />

@@ -24,9 +24,8 @@ export interface CashFlowStatement {
   endingCash: number;
 }
 
-export interface BalanceInputs {
-  beginningCash: number;
-  endingCash: number;
+export interface ExtractedData {
+  netIncome: number;
   depreciation: number;
   accountsReceivableChange: number;
   inventoryChange: number;
@@ -36,6 +35,11 @@ export interface BalanceInputs {
   debtProceeds: number;
   debtRepayments: number;
   dividendsPaid: number;
+}
+
+export interface BalanceInputs {
+  beginningCash: number;
+  endingCash: number;
 }
 
 export type WizardStep = 'upload' | 'balances' | 'generate' | 'export';

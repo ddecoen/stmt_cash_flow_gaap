@@ -1,29 +1,16 @@
 import { useState } from 'react';
-import { IncomeStatementData, BalanceInputs } from '../types';
+import { ExtractedData, BalanceInputs } from '../types';
 
 interface BalancesStepProps {
-  incomeStatementData: IncomeStatementData[];
+  extractedData: ExtractedData;
   onSubmit: (inputs: BalanceInputs) => void;
   onBack: () => void;
 }
 
-function BalancesStep({ incomeStatementData, onSubmit, onBack }: BalancesStepProps) {
-  const netIncome = incomeStatementData.find(
-    item => item.accountName.toLowerCase().includes('net income')
-  )?.amount || 0;
-
+function BalancesStep({ extractedData, onSubmit, onBack }: BalancesStepProps) {
   const [inputs, setInputs] = useState<BalanceInputs>({
     beginningCash: 0,
     endingCash: 0,
-    depreciation: 0,
-    accountsReceivableChange: 0,
-    inventoryChange: 0,
-    accountsPayableChange: 0,
-    accruedLiabilitiesChange: 0,
-    capitalExpenditures: 0,
-    debtProceeds: 0,
-    debtRepayments: 0,
-    dividendsPaid: 0,
   });
 
   const handleChange = (field: keyof BalanceInputs, value: string) => {
@@ -38,188 +25,147 @@ function BalancesStep({ incomeStatementData, onSubmit, onBack }: BalancesStepPro
     onSubmit(inputs);
   };
 
+  const formatCurrency = (amount: number) => {
+    return `$${Math.abs(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Enter Balance Sheet Changes</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Cash Balance Information</h2>
         <p className="text-gray-600 mb-4">
-          Enter the changes in balance sheet accounts and additional information needed for the cash flow statement
+          Enter the previous and current period ending cash balances for reconciliation
         </p>
-        {netIncome !== 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-900">
-              <span className="font-semibold">Net Income from Income Statement:</span> ${netIncome.toLocaleString()}
-            </p>
-          </div>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <h3 className="font-semibold text-lg text-gray-900">Cash Balances</h3>
+      <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+        <div>
+          <h3 className="font-semibold text-lg text-gray-900 mb-4">Cash Balance Information</h3>
+          <p className="text-sm text-gray-600 mb-6">Enter the cash balances for reconciliation</p>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Beginning Cash
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.beginningCash}
-              onChange={e => handleChange('beginningCash', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Previous Period Ending Cash Balance
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-gray-500 text-lg">$</span>
+                </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={inputs.beginningCash}
+                  onChange={e => handleChange('beginningCash', e.target.value)}
+                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Beginning cash balance for the current period</p>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ending Cash
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.endingCash}
-              onChange={e => handleChange('endingCash', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Current Period Ending Cash Balance (for verification)
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-gray-500 text-lg">$</span>
+                </div>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={inputs.endingCash}
+                  onChange={e => handleChange('endingCash', e.target.value)}
+                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Actual ending cash balance to compare with calculated amount</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-6">
-          <h3 className="font-semibold text-lg text-gray-900">Operating Activities Adjustments</h3>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Depreciation & Amortization
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.depreciation}
-              onChange={e => handleChange('depreciation', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 className="font-semibold text-lg text-gray-900 mb-4">Extracted Data from CSV Files</h3>
+        <p className="text-sm text-gray-600 mb-4">The following data was automatically extracted from your uploaded files:</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">From Income Statement</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Net Income (Loss):</span>
+                <span className={`font-medium ${extractedData.netIncome < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.netIncome < 0 ? '-' : ''}{formatCurrency(extractedData.netIncome)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Depreciation & Amortization:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.depreciation)}</span>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Change in Accounts Receivable
-              <span className="text-xs text-gray-500 ml-2">(increase is negative)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.accountsReceivableChange}
-              onChange={e => handleChange('accountsReceivableChange', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          <div className="bg-white rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Changes in Operating Assets & Liabilities</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Accounts Receivable:</span>
+                <span className={`font-medium ${extractedData.accountsReceivableChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.accountsReceivableChange < 0 ? '-' : ''}{formatCurrency(extractedData.accountsReceivableChange)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Inventory:</span>
+                <span className={`font-medium ${extractedData.inventoryChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.inventoryChange < 0 ? '-' : ''}{formatCurrency(extractedData.inventoryChange)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Accounts Payable:</span>
+                <span className={`font-medium ${extractedData.accountsPayableChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.accountsPayableChange < 0 ? '-' : ''}{formatCurrency(extractedData.accountsPayableChange)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Accrued Liabilities:</span>
+                <span className={`font-medium ${extractedData.accruedLiabilitiesChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.accruedLiabilitiesChange < 0 ? '-' : ''}{formatCurrency(extractedData.accruedLiabilitiesChange)}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Change in Inventory
-              <span className="text-xs text-gray-500 ml-2">(increase is negative)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.inventoryChange}
-              onChange={e => handleChange('inventoryChange', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          <div className="bg-white rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Investing Activities</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Capital Expenditures:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.capitalExpenditures)}</span>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Change in Accounts Payable
-              <span className="text-xs text-gray-500 ml-2">(increase is positive)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.accountsPayableChange}
-              onChange={e => handleChange('accountsPayableChange', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Change in Accrued Liabilities
-              <span className="text-xs text-gray-500 ml-2">(increase is positive)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.accruedLiabilitiesChange}
-              onChange={e => handleChange('accruedLiabilitiesChange', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <h3 className="font-semibold text-lg text-gray-900">Investing Activities</h3>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Capital Expenditures
-              <span className="text-xs text-gray-500 ml-2">(enter as positive)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.capitalExpenditures}
-              onChange={e => handleChange('capitalExpenditures', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <h3 className="font-semibold text-lg text-gray-900">Financing Activities</h3>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Proceeds from Debt
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.debtProceeds}
-              onChange={e => handleChange('debtProceeds', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Debt Repayments
-              <span className="text-xs text-gray-500 ml-2">(enter as positive)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.debtRepayments}
-              onChange={e => handleChange('debtRepayments', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Dividends Paid
-              <span className="text-xs text-gray-500 ml-2">(enter as positive)</span>
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={inputs.dividendsPaid}
-              onChange={e => handleChange('dividendsPaid', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          <div className="bg-white rounded-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Financing Activities</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Debt Proceeds:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.debtProceeds)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Debt Repayments:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.debtRepayments)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Dividends Paid:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.dividendsPaid)}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -236,7 +182,7 @@ function BalancesStep({ incomeStatementData, onSubmit, onBack }: BalancesStepPro
           type="submit"
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Continue
+          Generate Cash Flow Statement
         </button>
       </div>
     </form>

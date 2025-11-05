@@ -1,36 +1,34 @@
 import { useEffect } from 'react';
-import { IncomeStatementData, BalanceInputs, CashFlowStatement, CashFlowLineItem } from '../types';
+import { ExtractedData, BalanceInputs, CashFlowStatement, CashFlowLineItem } from '../types';
 
 interface GenerateStepProps {
-  incomeStatementData: IncomeStatementData[];
+  extractedData: ExtractedData;
   balanceInputs: BalanceInputs;
   onGenerate: (statement: CashFlowStatement) => void;
   onBack: () => void;
 }
 
-function GenerateStep({ incomeStatementData, balanceInputs, onGenerate, onBack }: GenerateStepProps) {
+function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: GenerateStepProps) {
   useEffect(() => {
-    const netIncome = incomeStatementData.find(
-      item => item.accountName.toLowerCase().includes('net income')
-    )?.amount || 0;
+    const netIncome = extractedData.netIncome;
 
     const operatingActivities: CashFlowLineItem[] = [
       { description: 'Net Income', amount: netIncome, indentLevel: 0 },
       { description: 'Adjustments to reconcile net income to net cash from operating activities:', amount: 0, indentLevel: 0 },
-      { description: 'Depreciation and amortization', amount: balanceInputs.depreciation, indentLevel: 1 },
+      { description: 'Depreciation and amortization', amount: extractedData.depreciation, indentLevel: 1 },
       { description: 'Changes in operating assets and liabilities:', amount: 0, indentLevel: 1 },
-      { description: 'Accounts receivable', amount: balanceInputs.accountsReceivableChange, indentLevel: 2 },
-      { description: 'Inventory', amount: balanceInputs.inventoryChange, indentLevel: 2 },
-      { description: 'Accounts payable', amount: balanceInputs.accountsPayableChange, indentLevel: 2 },
-      { description: 'Accrued liabilities', amount: balanceInputs.accruedLiabilitiesChange, indentLevel: 2 },
+      { description: 'Accounts receivable', amount: extractedData.accountsReceivableChange, indentLevel: 2 },
+      { description: 'Inventory', amount: extractedData.inventoryChange, indentLevel: 2 },
+      { description: 'Accounts payable', amount: extractedData.accountsPayableChange, indentLevel: 2 },
+      { description: 'Accrued liabilities', amount: extractedData.accruedLiabilitiesChange, indentLevel: 2 },
     ];
 
     const netCashFromOperating = netIncome +
-      balanceInputs.depreciation +
-      balanceInputs.accountsReceivableChange +
-      balanceInputs.inventoryChange +
-      balanceInputs.accountsPayableChange +
-      balanceInputs.accruedLiabilitiesChange;
+      extractedData.depreciation +
+      extractedData.accountsReceivableChange +
+      extractedData.inventoryChange +
+      extractedData.accountsPayableChange +
+      extractedData.accruedLiabilitiesChange;
 
     operatingActivities.push({
       description: 'Net cash provided by operating activities',
@@ -39,21 +37,21 @@ function GenerateStep({ incomeStatementData, balanceInputs, onGenerate, onBack }
     });
 
     const investingActivities: CashFlowLineItem[] = [
-      { description: 'Capital expenditures', amount: -balanceInputs.capitalExpenditures, indentLevel: 0 },
-      { description: 'Net cash used in investing activities', amount: -balanceInputs.capitalExpenditures, indentLevel: 0 },
+      { description: 'Capital expenditures', amount: -extractedData.capitalExpenditures, indentLevel: 0 },
+      { description: 'Net cash used in investing activities', amount: -extractedData.capitalExpenditures, indentLevel: 0 },
     ];
 
-    const netCashFromFinancing = balanceInputs.debtProceeds - balanceInputs.debtRepayments - balanceInputs.dividendsPaid;
+    const netCashFromFinancing = extractedData.debtProceeds - extractedData.debtRepayments - extractedData.dividendsPaid;
     const financingActivities: CashFlowLineItem[] = [];
 
-    if (balanceInputs.debtProceeds > 0) {
-      financingActivities.push({ description: 'Proceeds from debt', amount: balanceInputs.debtProceeds, indentLevel: 0 });
+    if (extractedData.debtProceeds > 0) {
+      financingActivities.push({ description: 'Proceeds from debt', amount: extractedData.debtProceeds, indentLevel: 0 });
     }
-    if (balanceInputs.debtRepayments > 0) {
-      financingActivities.push({ description: 'Repayment of debt', amount: -balanceInputs.debtRepayments, indentLevel: 0 });
+    if (extractedData.debtRepayments > 0) {
+      financingActivities.push({ description: 'Repayment of debt', amount: -extractedData.debtRepayments, indentLevel: 0 });
     }
-    if (balanceInputs.dividendsPaid > 0) {
-      financingActivities.push({ description: 'Dividends paid', amount: -balanceInputs.dividendsPaid, indentLevel: 0 });
+    if (extractedData.dividendsPaid > 0) {
+      financingActivities.push({ description: 'Dividends paid', amount: -extractedData.dividendsPaid, indentLevel: 0 });
     }
 
     financingActivities.push({
@@ -62,7 +60,7 @@ function GenerateStep({ incomeStatementData, balanceInputs, onGenerate, onBack }
       indentLevel: 0,
     });
 
-    const netIncrease = netCashFromOperating - balanceInputs.capitalExpenditures + netCashFromFinancing;
+    const netIncrease = netCashFromOperating - extractedData.capitalExpenditures + netCashFromFinancing;
 
     const statement: CashFlowStatement = {
       operatingActivities,
@@ -74,7 +72,7 @@ function GenerateStep({ incomeStatementData, balanceInputs, onGenerate, onBack }
     };
 
     onGenerate(statement);
-  }, [incomeStatementData, balanceInputs, onGenerate]);
+  }, [extractedData, balanceInputs, onGenerate]);
 
   return (
     <div className="space-y-8">
