@@ -44,36 +44,19 @@ function UploadStep({
         
         results.data.forEach((row: any) => {
           const accountName = row['Financial Row'] || row['financial row'] || row['FinancialRow'] || '';
-          const currentAmount = row['Amount (As of Sep 2025)'] || row['Amount'] || row['amount'] || '';
-          const comparisonAmount = row['Comparison Amount (As of Q2 2025)'] || row['Comparison Amount'] || row['comparison amount'] || '';
+          const variance = row['Variance'] || row['variance'] || '';
           
-          if (accountName && accountName.trim()) {
-            if (currentAmount && currentAmount.toString().trim()) {
-              const cleanCurrent = currentAmount.toString().replace(/[$,()\s]/g, '').trim();
-              const isNegativeCurrent = currentAmount.toString().includes('(');
-              const currentValue = parseFloat(cleanCurrent) * (isNegativeCurrent ? -1 : 1);
-              
-              if (!isNaN(currentValue)) {
-                data.push({
-                  date: 'current',
-                  accountName: accountName.trim(),
-                  amount: currentValue,
-                });
-              }
-            }
+          if (accountName && accountName.trim() && variance && variance.toString().trim()) {
+            const cleanVariance = variance.toString().replace(/[$,()\s]/g, '').trim();
+            const isNegative = variance.toString().includes('(');
+            const varianceValue = parseFloat(cleanVariance) * (isNegative ? -1 : 1);
             
-            if (comparisonAmount && comparisonAmount.toString().trim()) {
-              const cleanComparison = comparisonAmount.toString().replace(/[$,()\s]/g, '').trim();
-              const isNegativeComparison = comparisonAmount.toString().includes('(');
-              const comparisonValue = parseFloat(cleanComparison) * (isNegativeComparison ? -1 : 1);
-              
-              if (!isNaN(comparisonValue)) {
-                data.push({
-                  date: 'previous',
-                  accountName: accountName.trim(),
-                  amount: comparisonValue,
-                });
-              }
+            if (!isNaN(varianceValue)) {
+              data.push({
+                date: 'variance',
+                accountName: accountName.trim(),
+                amount: varianceValue,
+              });
             }
           }
         });

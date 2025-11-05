@@ -13,18 +13,15 @@ const findAccount = (data: any[], searchTerms: string[]): number => {
 };
 
 const getBalanceSheetChange = (balanceSheet: BalanceSheetData[], searchTerms: string[]): number => {
-  const accounts = balanceSheet.filter(item => {
+  for (const item of balanceSheet) {
     const accountName = (item.accountName || '').toLowerCase();
-    return searchTerms.some(term => accountName.includes(term.toLowerCase()));
-  });
-
-  if (accounts.length < 2) return 0;
-
-  accounts.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  const oldValue = accounts[0].amount;
-  const newValue = accounts[accounts.length - 1].amount;
-  
-  return newValue - oldValue;
+    for (const term of searchTerms) {
+      if (accountName.includes(term.toLowerCase())) {
+        return item.amount || 0;
+      }
+    }
+  }
+  return 0;
 };
 
 export const extractDataFromCSVs = (
