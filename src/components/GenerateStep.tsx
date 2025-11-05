@@ -45,7 +45,7 @@ function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: Gene
       { description: 'Net cash used in investing activities', amount: -extractedData.capitalExpenditures, indentLevel: 0 },
     ];
 
-    const netCashFromFinancing = extractedData.debtProceeds - extractedData.debtRepayments - extractedData.dividendsPaid;
+    const netCashFromFinancing = extractedData.debtProceeds - extractedData.debtRepayments + extractedData.stockIssuance;
     const financingActivities: CashFlowLineItem[] = [];
 
     if (extractedData.debtProceeds > 0) {
@@ -54,8 +54,8 @@ function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: Gene
     if (extractedData.debtRepayments > 0) {
       financingActivities.push({ description: 'Repayment of debt', amount: -extractedData.debtRepayments, indentLevel: 0 });
     }
-    if (extractedData.dividendsPaid > 0) {
-      financingActivities.push({ description: 'Dividends paid', amount: -extractedData.dividendsPaid, indentLevel: 0 });
+    if (extractedData.stockIssuance > 0) {
+      financingActivities.push({ description: 'Proceeds from stock issuance', amount: extractedData.stockIssuance, indentLevel: 0 });
     }
 
     financingActivities.push({

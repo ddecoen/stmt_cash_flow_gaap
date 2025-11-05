@@ -107,10 +107,11 @@ export const extractDataFromCSVs = (
     'loans',
   ])));
 
-  const dividendsPaid = findAccount(incomeStatement, [
-    'dividend',
-    'dividends paid',
-    'distributions',
+  const stockIssuance = getBalanceSheetChange(balanceSheet, [
+    '30001 - additional paid-in capital',
+    'additional paid-in capital',
+    'paid-in capital',
+    'apic',
   ]);
 
   return {
@@ -126,6 +127,6 @@ export const extractDataFromCSVs = (
     capitalExpenditures,
     debtProceeds,
     debtRepayments,
-    dividendsPaid,
+    stockIssuance,
   };
 };

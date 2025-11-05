@@ -174,8 +174,8 @@ function BalancesStep({ extractedData, onSubmit, onBack }: BalancesStepProps) {
                 <span className="font-medium text-gray-900">{formatCurrency(extractedData.debtRepayments)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Dividends Paid:</span>
-                <span className="font-medium text-gray-900">{formatCurrency(extractedData.dividendsPaid)}</span>
+                <span className="text-gray-600">Proceeds from Stock Issuance:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.stockIssuance)}</span>
               </div>
             </div>
           </div>

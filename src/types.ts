@@ -37,7 +37,7 @@ export interface ExtractedData {
   capitalExpenditures: number;
   debtProceeds: number;
   debtRepayments: number;
-  dividendsPaid: number;
+  stockIssuance: number;
 }
 
 export interface BalanceInputs {
