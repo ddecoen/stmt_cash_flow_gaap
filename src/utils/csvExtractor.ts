@@ -53,10 +53,16 @@ export const extractDataFromCSVs = (
     'trade receivables',
   ]);
 
-  const inventoryChange = -getBalanceSheetChange(balanceSheet, [
-    'inventory',
-    'inventories',
-    'stock',
+  const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
+    'prepaid',
+    'other current assets',
+    'prepaid and other current assets',
+    'prepaids',
+  ]);
+
+  const otherAssetsChange = -getBalanceSheetChange(balanceSheet, [
+    'other assets',
+    'other non-current assets',
   ]);
 
   const accountsPayableChange = getBalanceSheetChange(balanceSheet, [
@@ -66,11 +72,18 @@ export const extractDataFromCSVs = (
     'trade payables',
   ]);
 
-  const accruedLiabilitiesChange = getBalanceSheetChange(balanceSheet, [
+  const accruedExpensesChange = getBalanceSheetChange(balanceSheet, [
     'accrued',
-    'accrued liabilities',
     'accrued expenses',
+    'accrued liabilities',
     'other current liabilities',
+    'accrued expenses and other current liabilities',
+  ]);
+
+  const deferredRevenueChange = getBalanceSheetChange(balanceSheet, [
+    'deferred revenue',
+    'unearned revenue',
+    'deferred income',
   ]);
 
   const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
@@ -107,9 +120,12 @@ export const extractDataFromCSVs = (
     netIncome,
     depreciation,
     accountsReceivableChange,
-    inventoryChange,
+    prepaidAndOtherCurrentAssetsChange,
+    otherAssetsChange,
+    inventoryChange: 0,
     accountsPayableChange,
-    accruedLiabilitiesChange,
+    accruedLiabilitiesChange: accruedExpensesChange,
+    deferredRevenueChange,
     capitalExpenditures,
     debtProceeds,
     debtRepayments,

@@ -18,17 +18,21 @@ function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: Gene
       { description: 'Depreciation and amortization', amount: extractedData.depreciation, indentLevel: 1 },
       { description: 'Changes in operating assets and liabilities:', amount: 0, indentLevel: 1 },
       { description: 'Accounts receivable', amount: extractedData.accountsReceivableChange, indentLevel: 2 },
-      { description: 'Inventory', amount: extractedData.inventoryChange, indentLevel: 2 },
+      { description: 'Prepaid and other current assets', amount: extractedData.prepaidAndOtherCurrentAssetsChange, indentLevel: 2 },
+      { description: 'Other assets', amount: extractedData.otherAssetsChange, indentLevel: 2 },
       { description: 'Accounts payable', amount: extractedData.accountsPayableChange, indentLevel: 2 },
-      { description: 'Accrued liabilities', amount: extractedData.accruedLiabilitiesChange, indentLevel: 2 },
+      { description: 'Accrued expenses and other current liabilities', amount: extractedData.accruedLiabilitiesChange, indentLevel: 2 },
+      { description: 'Deferred revenue', amount: extractedData.deferredRevenueChange, indentLevel: 2 },
     ];
 
     const netCashFromOperating = netIncome +
       extractedData.depreciation +
       extractedData.accountsReceivableChange +
-      extractedData.inventoryChange +
+      extractedData.prepaidAndOtherCurrentAssetsChange +
+      extractedData.otherAssetsChange +
       extractedData.accountsPayableChange +
-      extractedData.accruedLiabilitiesChange;
+      extractedData.accruedLiabilitiesChange +
+      extractedData.deferredRevenueChange;
 
     operatingActivities.push({
       description: 'Net cash provided by operating activities',

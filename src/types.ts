@@ -28,9 +28,12 @@ export interface ExtractedData {
   netIncome: number;
   depreciation: number;
   accountsReceivableChange: number;
+  prepaidAndOtherCurrentAssetsChange: number;
+  otherAssetsChange: number;
   inventoryChange: number;
   accountsPayableChange: number;
   accruedLiabilitiesChange: number;
+  deferredRevenueChange: number;
   capitalExpenditures: number;
   debtProceeds: number;
   debtRepayments: number;

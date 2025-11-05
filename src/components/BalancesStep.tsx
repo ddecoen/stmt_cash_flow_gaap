@@ -120,9 +120,15 @@ function BalancesStep({ extractedData, onSubmit, onBack }: BalancesStepProps) {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Inventory:</span>
-                <span className={`font-medium ${extractedData.inventoryChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                  {extractedData.inventoryChange < 0 ? '-' : ''}{formatCurrency(extractedData.inventoryChange)}
+                <span className="text-gray-600">Prepaid and Other Current Assets:</span>
+                <span className={`font-medium ${extractedData.prepaidAndOtherCurrentAssetsChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.prepaidAndOtherCurrentAssetsChange < 0 ? '-' : ''}{formatCurrency(extractedData.prepaidAndOtherCurrentAssetsChange)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Other Assets:</span>
+                <span className={`font-medium ${extractedData.otherAssetsChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.otherAssetsChange < 0 ? '-' : ''}{formatCurrency(extractedData.otherAssetsChange)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -132,9 +138,15 @@ function BalancesStep({ extractedData, onSubmit, onBack }: BalancesStepProps) {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Accrued Liabilities:</span>
+                <span className="text-gray-600">Accrued Expenses and Other Current Liabilities:</span>
                 <span className={`font-medium ${extractedData.accruedLiabilitiesChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
                   {extractedData.accruedLiabilitiesChange < 0 ? '-' : ''}{formatCurrency(extractedData.accruedLiabilitiesChange)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Deferred Revenue:</span>
+                <span className={`font-medium ${extractedData.deferredRevenueChange < 0 ? 'text-red-600' : 'text-gray-900'}`}>
+                  {extractedData.deferredRevenueChange < 0 ? '-' : ''}{formatCurrency(extractedData.deferredRevenueChange)}
                 </span>
               </div>
             </div>
