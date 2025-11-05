@@ -30,19 +30,20 @@ function UploadStep({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
+        console.log('Balance Sheet Parse Results:', results);
         const data: BalanceSheetData[] = [];
         
         results.data.forEach((row: any) => {
-          const accountName = row['Financial Row'] || '';
-          const currentAmount = row['Amount (As of Sep 2025)'] || row['Amount'] || '';
-          const comparisonAmount = row['Comparison Amount (As of Q2 2025)'] || row['Comparison Amount'] || '';
+          const accountName = row['Financial Row'] || row['financial row'] || row['FinancialRow'] || '';
+          const currentAmount = row['Amount (As of Sep 2025)'] || row['Amount'] || row['amount'] || '';
+          const comparisonAmount = row['Comparison Amount (As of Q2 2025)'] || row['Comparison Amount'] || row['comparison amount'] || '';
           
-          if (accountName && currentAmount) {
-            const cleanCurrent = currentAmount.toString().replace(/[$,()]/g, '').trim();
+          if (accountName && accountName.trim() && currentAmount && currentAmount.toString().trim()) {
+            const cleanCurrent = currentAmount.toString().replace(/[$,()\s]/g, '').trim();
             const isNegativeCurrent = currentAmount.toString().includes('(');
             const currentValue = parseFloat(cleanCurrent) * (isNegativeCurrent ? -1 : 1);
             
-            if (!isNaN(currentValue)) {
+            if (!isNaN(currentValue) && currentValue !== 0) {
               data.push({
                 date: 'current',
                 accountName: accountName.trim(),
@@ -51,12 +52,12 @@ function UploadStep({
             }
           }
           
-          if (accountName && comparisonAmount) {
-            const cleanComparison = comparisonAmount.toString().replace(/[$,()]/g, '').trim();
+          if (accountName && accountName.trim() && comparisonAmount && comparisonAmount.toString().trim()) {
+            const cleanComparison = comparisonAmount.toString().replace(/[$,()\s]/g, '').trim();
             const isNegativeComparison = comparisonAmount.toString().includes('(');
             const comparisonValue = parseFloat(cleanComparison) * (isNegativeComparison ? -1 : 1);
             
-            if (!isNaN(comparisonValue)) {
+            if (!isNaN(comparisonValue) && comparisonValue !== 0) {
               data.push({
                 date: 'previous',
                 accountName: accountName.trim(),
@@ -66,6 +67,8 @@ function UploadStep({
           }
         });
         
+        console.log('Parsed Balance Sheet Data:', data);
+        console.log('Data length:', data.length);
         onBalanceSheetUpload(data);
       },
     });
@@ -81,18 +84,19 @@ function UploadStep({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
+        console.log('Income Statement Parse Results:', results);
         const data: IncomeStatementData[] = [];
         
         results.data.forEach((row: any) => {
-          const accountName = row['Financial Row'] || '';
-          const amount = row['Amount'] || '';
+          const accountName = row['Financial Row'] || row['financial row'] || row['FinancialRow'] || '';
+          const amount = row['Amount'] || row['amount'] || '';
           
-          if (accountName && amount) {
-            const cleanAmount = amount.toString().replace(/[$,()]/g, '').trim();
+          if (accountName && accountName.trim() && amount && amount.toString().trim()) {
+            const cleanAmount = amount.toString().replace(/[$,()\s]/g, '').trim();
             const isNegative = amount.toString().includes('(');
             const value = parseFloat(cleanAmount) * (isNegative ? -1 : 1);
             
-            if (!isNaN(value)) {
+            if (!isNaN(value) && value !== 0) {
               data.push({
                 accountName: accountName.trim(),
                 amount: value,
@@ -101,6 +105,8 @@ function UploadStep({
           }
         });
         
+        console.log('Parsed Income Statement Data:', data);
+        console.log('Data length:', data.length);
         onIncomeStatementUpload(data);
       },
     });
