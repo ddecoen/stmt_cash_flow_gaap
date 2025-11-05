@@ -30,11 +30,42 @@ function UploadStep({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const data = results.data.map((row: any) => ({
-          date: row.Date || row.date || '',
-          accountName: row['Account Name'] || row.Account || row.accountName || '',
-          amount: parseFloat(row.Amount || row.amount || '0'),
-        }));
+        const data: BalanceSheetData[] = [];
+        
+        results.data.forEach((row: any) => {
+          const accountName = row['Financial Row'] || '';
+          const currentAmount = row['Amount (As of Sep 2025)'] || row['Amount'] || '';
+          const comparisonAmount = row['Comparison Amount (As of Q2 2025)'] || row['Comparison Amount'] || '';
+          
+          if (accountName && currentAmount) {
+            const cleanCurrent = currentAmount.toString().replace(/[$,()]/g, '').trim();
+            const isNegativeCurrent = currentAmount.toString().includes('(');
+            const currentValue = parseFloat(cleanCurrent) * (isNegativeCurrent ? -1 : 1);
+            
+            if (!isNaN(currentValue)) {
+              data.push({
+                date: 'current',
+                accountName: accountName.trim(),
+                amount: currentValue,
+              });
+            }
+          }
+          
+          if (accountName && comparisonAmount) {
+            const cleanComparison = comparisonAmount.toString().replace(/[$,()]/g, '').trim();
+            const isNegativeComparison = comparisonAmount.toString().includes('(');
+            const comparisonValue = parseFloat(cleanComparison) * (isNegativeComparison ? -1 : 1);
+            
+            if (!isNaN(comparisonValue)) {
+              data.push({
+                date: 'previous',
+                accountName: accountName.trim(),
+                amount: comparisonValue,
+              });
+            }
+          }
+        });
+        
         onBalanceSheetUpload(data);
       },
     });
@@ -50,10 +81,26 @@ function UploadStep({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const data = results.data.map((row: any) => ({
-          accountName: row['Account Name'] || row.Account || row.accountName || '',
-          amount: parseFloat(row.Amount || row.amount || '0'),
-        }));
+        const data: IncomeStatementData[] = [];
+        
+        results.data.forEach((row: any) => {
+          const accountName = row['Financial Row'] || '';
+          const amount = row['Amount'] || '';
+          
+          if (accountName && amount) {
+            const cleanAmount = amount.toString().replace(/[$,()]/g, '').trim();
+            const isNegative = amount.toString().includes('(');
+            const value = parseFloat(cleanAmount) * (isNegative ? -1 : 1);
+            
+            if (!isNaN(value)) {
+              data.push({
+                accountName: accountName.trim(),
+                amount: value,
+              });
+            }
+          }
+        });
+        
         onIncomeStatementUpload(data);
       },
     });

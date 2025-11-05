@@ -34,64 +34,64 @@ export const extractDataFromCSVs = (
   const netIncome = findAccount(incomeStatement, [
     'net income',
     'net loss',
-    'net earnings',
-    'bottom line',
   ]);
 
   const depreciation = findAccount(incomeStatement, [
+    '65910 - depreciation',
     'depreciation',
     'amortization',
-    'depreciation and amortization',
-    'depreciation & amortization',
-    'd&a',
   ]);
 
   const accountsReceivableChange = -getBalanceSheetChange(balanceSheet, [
+    '12001 - accounts receivable - trade',
+    'accounts receivable - trade',
     'accounts receivable',
     'receivables',
-    'a/r',
-    'trade receivables',
   ]);
 
   const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
+    '13000 - prepaid expenses',
+    '14000 - other current assets',
     'prepaid',
     'other current assets',
-    'prepaid and other current assets',
-    'prepaids',
   ]);
 
   const otherAssetsChange = -getBalanceSheetChange(balanceSheet, [
+    '17001 - note receivable',
+    '17003 - security deposits',
+    '18000 - operating lease right-of-use assets',
     'other assets',
-    'other non-current assets',
+    'note receivable',
+    'security deposits',
   ]);
 
   const accountsPayableChange = getBalanceSheetChange(balanceSheet, [
+    '20001 - accounts payable - trade',
+    'accounts payable - trade',
     'accounts payable',
-    'payables',
-    'a/p',
-    'trade payables',
   ]);
 
   const accruedExpensesChange = getBalanceSheetChange(balanceSheet, [
-    'accrued',
+    '20003 - payroll taxes payable',
+    '20004 - employee and employer contributions payable',
+    '20005 - accrued expenses',
+    '20007 - wages payable',
     'accrued expenses',
-    'accrued liabilities',
-    'other current liabilities',
-    'accrued expenses and other current liabilities',
+    'wages payable',
+    'payroll taxes payable',
   ]);
 
   const deferredRevenueChange = getBalanceSheetChange(balanceSheet, [
+    '21000 - deferred revenue',
     'deferred revenue',
-    'unearned revenue',
-    'deferred income',
   ]);
 
   const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
-    'property, plant',
+    '15110 - furniture and equipment',
+    '15120 - computer equipment',
+    'furniture and equipment',
+    'computer equipment',
     'fixed assets',
-    'ppe',
-    'capital assets',
-    'property and equipment',
   ]));
 
   const debtProceeds = Math.max(0, getBalanceSheetChange(balanceSheet, [
