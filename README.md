@@ -40,6 +40,36 @@ npm run build
 npm run preview
 ```
 
+## Deployment
+
+### Deploy to Vercel (Recommended)
+
+#### Option 1: Via Vercel Dashboard (Easiest)
+
+1. Go to https://vercel.com/new
+2. Click "Import Git Repository"
+3. Select your GitHub account and find `ddecoen/stmt_cash_flow_gaap`
+4. Click "Import"
+5. Vercel will auto-detect the Vite framework and configure everything automatically
+6. Click "Deploy"
+
+Your app will be live in 1-2 minutes! Vercel will also set up automatic deployments - every push to `main` will trigger a new deployment.
+
+#### Option 2: Via Vercel CLI
+
+```bash
+# Install Vercel CLI globally (one-time setup)
+npm install -g vercel
+
+# Login to Vercel (opens browser for authentication)
+vercel login
+
+# Deploy to production
+vercel --prod
+```
+
+The CLI will guide you through linking the project to your Vercel account on first deployment.
+
 ## Input Requirements
 
 ### Required CSV Files
