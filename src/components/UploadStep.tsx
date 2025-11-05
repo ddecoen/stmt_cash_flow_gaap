@@ -29,8 +29,12 @@ function UploadStep({
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: (header: string) => {
+        return header.replace(/^\uFEFF/, '').trim();
+      },
       complete: (results) => {
         console.log('Balance Sheet Parse Results:', results);
+        console.log('First row sample:', results.data[0]);
         const data: BalanceSheetData[] = [];
         
         results.data.forEach((row: any) => {
@@ -38,31 +42,33 @@ function UploadStep({
           const currentAmount = row['Amount (As of Sep 2025)'] || row['Amount'] || row['amount'] || '';
           const comparisonAmount = row['Comparison Amount (As of Q2 2025)'] || row['Comparison Amount'] || row['comparison amount'] || '';
           
-          if (accountName && accountName.trim() && currentAmount && currentAmount.toString().trim()) {
-            const cleanCurrent = currentAmount.toString().replace(/[$,()\s]/g, '').trim();
-            const isNegativeCurrent = currentAmount.toString().includes('(');
-            const currentValue = parseFloat(cleanCurrent) * (isNegativeCurrent ? -1 : 1);
-            
-            if (!isNaN(currentValue) && currentValue !== 0) {
-              data.push({
-                date: 'current',
-                accountName: accountName.trim(),
-                amount: currentValue,
-              });
+          if (accountName && accountName.trim()) {
+            if (currentAmount && currentAmount.toString().trim()) {
+              const cleanCurrent = currentAmount.toString().replace(/[$,()\s]/g, '').trim();
+              const isNegativeCurrent = currentAmount.toString().includes('(');
+              const currentValue = parseFloat(cleanCurrent) * (isNegativeCurrent ? -1 : 1);
+              
+              if (!isNaN(currentValue)) {
+                data.push({
+                  date: 'current',
+                  accountName: accountName.trim(),
+                  amount: currentValue,
+                });
+              }
             }
-          }
-          
-          if (accountName && accountName.trim() && comparisonAmount && comparisonAmount.toString().trim()) {
-            const cleanComparison = comparisonAmount.toString().replace(/[$,()\s]/g, '').trim();
-            const isNegativeComparison = comparisonAmount.toString().includes('(');
-            const comparisonValue = parseFloat(cleanComparison) * (isNegativeComparison ? -1 : 1);
             
-            if (!isNaN(comparisonValue) && comparisonValue !== 0) {
-              data.push({
-                date: 'previous',
-                accountName: accountName.trim(),
-                amount: comparisonValue,
-              });
+            if (comparisonAmount && comparisonAmount.toString().trim()) {
+              const cleanComparison = comparisonAmount.toString().replace(/[$,()\s]/g, '').trim();
+              const isNegativeComparison = comparisonAmount.toString().includes('(');
+              const comparisonValue = parseFloat(cleanComparison) * (isNegativeComparison ? -1 : 1);
+              
+              if (!isNaN(comparisonValue)) {
+                data.push({
+                  date: 'previous',
+                  accountName: accountName.trim(),
+                  amount: comparisonValue,
+                });
+              }
             }
           }
         });
@@ -83,8 +89,12 @@ function UploadStep({
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      transformHeader: (header: string) => {
+        return header.replace(/^\uFEFF/, '').trim();
+      },
       complete: (results) => {
         console.log('Income Statement Parse Results:', results);
+        console.log('First row sample:', results.data[0]);
         const data: IncomeStatementData[] = [];
         
         results.data.forEach((row: any) => {
@@ -96,7 +106,7 @@ function UploadStep({
             const isNegative = amount.toString().includes('(');
             const value = parseFloat(cleanAmount) * (isNegative ? -1 : 1);
             
-            if (!isNaN(value) && value !== 0) {
+            if (!isNaN(value)) {
               data.push({
                 accountName: accountName.trim(),
                 amount: value,
