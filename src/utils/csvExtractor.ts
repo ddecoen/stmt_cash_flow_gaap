@@ -75,7 +75,12 @@ export const extractDataFromCSVs = (
     'total - 23000 - operating lease liabilities',
   ]);
 
-  const accruedExpensesChange = totalOtherCurrentLiability - deferredRevenueChange + operatingLeaseLiabilitiesChange;
+  const creditCardChange = getBalanceSheetChange(balanceSheet, [
+    'total credit card',
+    'total - credit card',
+  ]);
+
+  const accruedExpensesChange = totalOtherCurrentLiability - deferredRevenueChange + creditCardChange + operatingLeaseLiabilitiesChange;
 
   const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
     '15110 - furniture and equipment',
