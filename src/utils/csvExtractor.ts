@@ -94,13 +94,16 @@ export const extractDataFromCSVs = (
   console.log('Calculated Accrued Expenses:', accruedExpensesChange);
   console.log('Expected: 451987.19');
 
-  const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
-    '15110 - furniture and equipment',
-    '15120 - computer equipment',
-    'furniture and equipment',
-    'computer equipment',
-    'fixed assets',
-  ]));
+  const capitalExpenditures = Math.abs(
+    getBalanceSheetChange(balanceSheet, [
+      '15110 - furniture and equipment',
+      'furniture and equipment',
+    ]) +
+    getBalanceSheetChange(balanceSheet, [
+      '15120 - computer equipment',
+      'computer equipment',
+    ])
+  );
 
   const debtProceeds = Math.max(0, getBalanceSheetChange(balanceSheet, [
     'long-term debt',
@@ -118,12 +121,19 @@ export const extractDataFromCSVs = (
     'loans',
   ])));
 
-  const stockIssuance = getBalanceSheetChange(balanceSheet, [
+  const commonStockChange = getBalanceSheetChange(balanceSheet, [
+    '3007 - common stock',
+    'common stock',
+  ]);
+
+  const apicChange = getBalanceSheetChange(balanceSheet, [
     '30001 - additional paid-in capital',
     'additional paid-in capital',
     'paid-in capital',
     'apic',
   ]);
+
+  const stockIssuance = commonStockChange + apicChange;
 
   return {
     netIncome,
