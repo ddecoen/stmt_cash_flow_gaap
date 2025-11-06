@@ -47,19 +47,13 @@ export const extractDataFromCSVs = (
   ]);
 
   const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
-    '13000 - prepaid expenses',
-    '14000 - other current assets',
-    'prepaid',
-    'other current assets',
+    'total - 13000 - prepaid expenses',
+    'total - 14000 - other current assets',
+    'total other current asset',
   ]);
 
   const otherAssetsChange = -getBalanceSheetChange(balanceSheet, [
-    '17001 - note receivable',
-    '17003 - security deposits',
-    '18000 - operating lease right-of-use assets',
-    'other assets',
-    'note receivable',
-    'security deposits',
+    'total other assets',
   ]);
 
   const accountsPayableChange = getBalanceSheetChange(balanceSheet, [
