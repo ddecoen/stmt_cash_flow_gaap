@@ -38,39 +38,52 @@ function ExportStep({ cashFlowStatement, onBack }: ExportStepProps) {
   const hasVariance = Math.abs(variance) > 0.01;
 
   const handleExportCSV = () => {
+    const escapeCSV = (value: string) => {
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    };
+
+    const formatAmount = (amount: number) => {
+      if (amount === 0) return '';
+      return amount.toFixed(2);
+    };
+
     const lines = [
-      ['Statement of Cash Flows'],
-      ['U.S. GAAP Indirect Method'],
+      ['Statement of Cash Flows - Indirect Method'],
+      ['U.S. GAAP Compliant'],
       [''],
-      ['Cash Flows from Operating Activities'],
+      ['CASH FLOWS FROM OPERATING ACTIVITIES'],
       ...cashFlowStatement.operatingActivities.map(item => [
-        '  '.repeat(item.indentLevel || 0) + item.description,
-        item.amount === 0 ? '' : formatCurrency(item.amount),
+        escapeCSV(item.description),
+        formatAmount(item.amount),
       ]),
       [''],
-      ['Cash Flows from Investing Activities'],
+      ['CASH FLOWS FROM INVESTING ACTIVITIES'],
       ...cashFlowStatement.investingActivities.map(item => [
-        '  '.repeat(item.indentLevel || 0) + item.description,
-        item.amount === 0 ? '' : formatCurrency(item.amount),
+        escapeCSV(item.description),
+        formatAmount(item.amount),
       ]),
       [''],
-      ['Cash Flows from Financing Activities'],
+      ['CASH FLOWS FROM FINANCING ACTIVITIES'],
       ...cashFlowStatement.financingActivities.map(item => [
-        '  '.repeat(item.indentLevel || 0) + item.description,
-        item.amount === 0 ? '' : formatCurrency(item.amount),
+        escapeCSV(item.description),
+        formatAmount(item.amount),
       ]),
       [''],
-      ['Net increase (decrease) in cash', formatCurrency(cashFlowStatement.netIncrease)],
-      ['Cash at beginning of period', formatCurrency(cashFlowStatement.beginningCash)],
-      ['Cash at end of period', formatCurrency(cashFlowStatement.endingCash)],
+      ['Net increase (decrease) in cash and cash equivalents', formatAmount(cashFlowStatement.netIncrease)],
+      ['Cash and cash equivalents at beginning of period', formatAmount(cashFlowStatement.beginningCash)],
+      ['Cash and cash equivalents at end of period', formatAmount(cashFlowStatement.endingCash)],
     ];
 
     const csv = lines.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'cash_flow_statement.csv';
+    const today = new Date().toISOString().split('T')[0];
+    link.download = `cash_flow_statement_${today}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
