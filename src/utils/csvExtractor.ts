@@ -12,6 +12,20 @@ const findAccount = (data: any[], searchTerms: string[]): number => {
   return 0;
 };
 
+const sumBalanceSheetChanges = (balanceSheet: BalanceSheetData[], searchTerms: string[]): number => {
+  let total = 0;
+  for (const item of balanceSheet) {
+    const accountName = (item.accountName || '').toLowerCase();
+    for (const term of searchTerms) {
+      if (accountName.includes(term.toLowerCase())) {
+        total += item.amount || 0;
+        break;
+      }
+    }
+  }
+  return total;
+};
+
 const getBalanceSheetChange = (balanceSheet: BalanceSheetData[], searchTerms: string[]): number => {
   for (const item of balanceSheet) {
     const accountName = (item.accountName || '').toLowerCase();
@@ -46,10 +60,9 @@ export const extractDataFromCSVs = (
     'receivables',
   ]);
 
-  const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
+  const prepaidAndOtherCurrentAssetsChange = -sumBalanceSheetChanges(balanceSheet, [
     'total - 13000 - prepaid expenses',
     'total - 14000 - other current assets',
-    'total other current asset',
   ]);
 
   const otherAssetsChange = -getBalanceSheetChange(balanceSheet, [
@@ -63,13 +76,7 @@ export const extractDataFromCSVs = (
   ]);
 
   const accruedExpensesChange = getBalanceSheetChange(balanceSheet, [
-    '20003 - payroll taxes payable',
-    '20004 - employee and employer contributions payable',
-    '20005 - accrued expenses',
-    '20007 - wages payable',
-    'accrued expenses',
-    'wages payable',
-    'payroll taxes payable',
+    'total other current liability',
   ]);
 
   const deferredRevenueChange = getBalanceSheetChange(balanceSheet, [
