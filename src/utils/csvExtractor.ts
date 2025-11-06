@@ -12,20 +12,6 @@ const findAccount = (data: any[], searchTerms: string[]): number => {
   return 0;
 };
 
-const sumBalanceSheetChanges = (balanceSheet: BalanceSheetData[], searchTerms: string[]): number => {
-  let total = 0;
-  for (const item of balanceSheet) {
-    const accountName = (item.accountName || '').toLowerCase();
-    for (const term of searchTerms) {
-      if (accountName.includes(term.toLowerCase())) {
-        total += item.amount || 0;
-        break;
-      }
-    }
-  }
-  return total;
-};
-
 const getBalanceSheetChange = (balanceSheet: BalanceSheetData[], searchTerms: string[]): number => {
   for (const item of balanceSheet) {
     const accountName = (item.accountName || '').toLowerCase();
@@ -60,9 +46,8 @@ export const extractDataFromCSVs = (
     'receivables',
   ]);
 
-  const prepaidAndOtherCurrentAssetsChange = -sumBalanceSheetChanges(balanceSheet, [
-    'total - 13000 - prepaid expenses',
-    'total - 14000 - other current assets',
+  const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
+    'total other current asset',
   ]);
 
   const otherAssetsChange = -getBalanceSheetChange(balanceSheet, [
@@ -75,7 +60,7 @@ export const extractDataFromCSVs = (
     'accounts payable',
   ]);
 
-  const accruedExpensesChange = getBalanceSheetChange(balanceSheet, [
+  const totalOtherCurrentLiability = getBalanceSheetChange(balanceSheet, [
     'total other current liability',
   ]);
 
@@ -83,6 +68,14 @@ export const extractDataFromCSVs = (
     '21000 - deferred revenue',
     'deferred revenue',
   ]);
+
+  const operatingLeaseLiabilitiesChange = getBalanceSheetChange(balanceSheet, [
+    '23000 - operating lease liabilities',
+    'operating lease liabilities',
+    'total - 23000 - operating lease liabilities',
+  ]);
+
+  const accruedExpensesChange = totalOtherCurrentLiability - deferredRevenueChange + operatingLeaseLiabilitiesChange;
 
   const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
     '15110 - furniture and equipment',
