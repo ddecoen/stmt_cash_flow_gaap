@@ -94,16 +94,25 @@ export const extractDataFromCSVs = (
   console.log('Calculated Accrued Expenses:', accruedExpensesChange);
   console.log('Expected: 451987.19');
 
-  const capitalExpenditures = Math.abs(
-    getBalanceSheetChange(balanceSheet, [
-      '15110 - furniture and equipment',
-      'furniture and equipment',
-    ]) +
-    getBalanceSheetChange(balanceSheet, [
-      '15120 - computer equipment',
-      'computer equipment',
-    ])
-  );
+  const furniture = getBalanceSheetChange(balanceSheet, [
+    '15110 - furniture and equipment',
+    'furniture and equipment',
+  ]);
+
+  const computerEquipment = getBalanceSheetChange(balanceSheet, [
+    '15120 - computer equipment',
+    'computer equipment',
+  ]);
+
+  console.log('Debug CapEx Calculation:');
+  console.log('15110 Furniture:', furniture);
+  console.log('15120 Computer Equipment:', computerEquipment);
+  console.log('Sum:', furniture + computerEquipment);
+
+  const capitalExpenditures = Math.abs(furniture + computerEquipment);
+
+  console.log('Capital Expenditures (abs):', capitalExpenditures);
+  console.log('Expected: 61283.38');
 
   const debtProceeds = Math.max(0, getBalanceSheetChange(balanceSheet, [
     'long-term debt',
