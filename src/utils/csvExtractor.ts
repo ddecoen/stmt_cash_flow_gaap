@@ -78,6 +78,9 @@ export const extractDataFromCSVs = (
   const creditCardChange = getBalanceSheetChange(balanceSheet, [
     'total credit card',
     'total - credit card',
+    'total - 20002 - credit card',
+    '20002 - credit card',
+    'credit card',
   ]);
 
   const accruedExpensesChange = totalOtherCurrentLiability - deferredRevenueChange + creditCardChange + operatingLeaseLiabilitiesChange;
