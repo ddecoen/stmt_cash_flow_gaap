@@ -70,9 +70,9 @@ export const extractDataFromCSVs = (
   ]);
 
   const operatingLeaseLiabilitiesChange = getBalanceSheetChange(balanceSheet, [
-    '23000 - operating lease liabilities',
-    'operating lease liabilities',
-    'total - 23000 - operating lease liabilities',
+    '26100 - operating lease liabilities, non-current',
+    'operating lease liabilities, non-current',
+    'total - 26100 - operating lease liabilities, non-current',
   ]);
 
   const creditCardChange = getBalanceSheetChange(balanceSheet, [
