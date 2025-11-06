@@ -83,7 +83,16 @@ export const extractDataFromCSVs = (
     'credit card',
   ]);
 
+  console.log('Debug Accrued Expenses Calculation:');
+  console.log('Total Other Current Liability:', totalOtherCurrentLiability);
+  console.log('Deferred Revenue Change:', deferredRevenueChange);
+  console.log('Credit Card Change:', creditCardChange);
+  console.log('Operating Lease Liabilities Change:', operatingLeaseLiabilitiesChange);
+
   const accruedExpensesChange = totalOtherCurrentLiability - deferredRevenueChange + creditCardChange + operatingLeaseLiabilitiesChange;
+
+  console.log('Calculated Accrued Expenses:', accruedExpensesChange);
+  console.log('Expected: 451987.19');
 
   const capitalExpenditures = Math.abs(getBalanceSheetChange(balanceSheet, [
     '15110 - furniture and equipment',
