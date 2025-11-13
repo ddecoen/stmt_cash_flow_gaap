@@ -46,3 +46,24 @@ export interface BalanceInputs {
 }
 
 export type WizardStep = 'upload' | 'balances' | 'generate' | 'export';
+
+// Storage types for versioned statements
+export interface StoredCashFlowStatement {
+  id: string;
+  timestamp: Date;
+  cashFlowStatement: CashFlowStatement;
+  extractedData: ExtractedData;
+  balanceInputs: BalanceInputs;
+  variance: number;
+  metadata: {
+    periodLabel?: string;
+    companyName?: string;
+    notes?: string;
+  };
+}
+
+export interface StatementFilter {
+  maxVariance: number; // Only show statements with variance less than this
+  startDate?: Date;
+  endDate?: Date;
+}
