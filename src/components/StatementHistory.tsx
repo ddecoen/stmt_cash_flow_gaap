@@ -65,6 +65,68 @@ function StatementHistory({ onClose, onLoadStatement }: StatementHistoryProps) {
     }).format(date);
   };
 
+  const handleExportCSV = (statement: StoredCashFlowStatement) => {
+    const escapeCSV = (value: string) => {
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    };
+
+    const formatAmount = (amount: number) => {
+      if (amount === 0) return '';
+      return amount.toFixed(2);
+    };
+
+    const lines = [
+      ['Statement of Cash Flows - Indirect Method'],
+      ['U.S. GAAP Compliant'],
+      [''],
+      ...(statement.metadata.companyName ? [['Company:', statement.metadata.companyName]] : []),
+      ...(statement.metadata.periodLabel ? [['Period:', statement.metadata.periodLabel]] : []),
+      ['Saved:', formatDate(statement.timestamp)],
+      [''],
+      ['CASH FLOWS FROM OPERATING ACTIVITIES'],
+      ...statement.cashFlowStatement.operatingActivities.map(item => [
+        escapeCSV(item.description),
+        formatAmount(item.amount),
+      ]),
+      [''],
+      ['CASH FLOWS FROM INVESTING ACTIVITIES'],
+      ...statement.cashFlowStatement.investingActivities.map(item => [
+        escapeCSV(item.description),
+        formatAmount(item.amount),
+      ]),
+      [''],
+      ['CASH FLOWS FROM FINANCING ACTIVITIES'],
+      ...statement.cashFlowStatement.financingActivities.map(item => [
+        escapeCSV(item.description),
+        formatAmount(item.amount),
+      ]),
+      [''],
+      ['Net increase (decrease) in cash and cash equivalents', formatAmount(statement.cashFlowStatement.netIncrease)],
+      ['Cash and cash equivalents at beginning of period', formatAmount(statement.cashFlowStatement.beginningCash)],
+      ['Cash and cash equivalents at end of period', formatAmount(statement.cashFlowStatement.endingCash)],
+      [''],
+      ['Variance', formatAmount(statement.variance)],
+      ...(statement.metadata.notes ? [[''], ['Notes:', escapeCSV(statement.metadata.notes)]] : []),
+    ];
+
+    const csv = lines.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const fileName = statement.metadata.periodLabel 
+      ? `cash_flow_${statement.metadata.periodLabel.replace(/\s+/g, '_')}.csv`
+      : `cash_flow_${statement.id}.csv`;
+    
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col">
@@ -111,39 +173,55 @@ function StatementHistory({ onClose, onLoadStatement }: StatementHistoryProps) {
             ) : (
               <div className="divide-y divide-gray-200">
                 {statements.map((stmt) => (
-                  <button
+                  <div
                     key={stmt.id}
-                    onClick={() => setSelectedStatement(stmt)}
-                    className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
+                    className={`relative group ${
                       selectedStatement?.id === stmt.id ? 'bg-blue-50 border-l-4 border-blue-600' : ''
                     }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">
-                          {stmt.metadata.periodLabel || 'Untitled Statement'}
-                        </h3>
-                        {stmt.metadata.companyName && (
-                          <p className="text-sm text-gray-600">{stmt.metadata.companyName}</p>
-                        )}
+                    <button
+                      onClick={() => setSelectedStatement(stmt)}
+                      className="w-full text-left p-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 pr-8">
+                          <h3 className="font-semibold text-gray-900">
+                            {stmt.metadata.periodLabel || 'Untitled Statement'}
+                          </h3>
+                          {stmt.metadata.companyName && (
+                            <p className="text-sm text-gray-600">{stmt.metadata.companyName}</p>
+                          )}
+                        </div>
+                        <div className={`px-2 py-1 rounded text-xs font-medium ${
+                          Math.abs(stmt.variance) < 0.01
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {Math.abs(stmt.variance) < 0.01 ? 'Balanced' : formatCurrency(stmt.variance)}
+                        </div>
                       </div>
-                      <div className={`px-2 py-1 rounded text-xs font-medium ${
-                        Math.abs(stmt.variance) < 0.01
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {Math.abs(stmt.variance) < 0.01 ? 'Balanced' : formatCurrency(stmt.variance)}
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500">{formatDate(stmt.timestamp)}</p>
-                    <div className="mt-2 flex items-center gap-4 text-sm">
-                      <span className="text-gray-600">
-                        Net Change: <span className="font-medium text-gray-900">
-                          {formatCurrency(stmt.cashFlowStatement.netIncrease)}
+                      <p className="text-xs text-gray-500">{formatDate(stmt.timestamp)}</p>
+                      <div className="mt-2 flex items-center gap-4 text-sm">
+                        <span className="text-gray-600">
+                          Net Change: <span className="font-medium text-gray-900">
+                            {formatCurrency(stmt.cashFlowStatement.netIncrease)}
+                          </span>
                         </span>
-                      </span>
-                    </div>
-                  </button>
+                      </div>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleExportCSV(stmt);
+                      }}
+                      className="absolute top-4 right-4 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors opacity-0 group-hover:opacity-100"
+                      title="Export to CSV"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
@@ -225,27 +303,40 @@ function StatementHistory({ onClose, onLoadStatement }: StatementHistoryProps) {
                   </div>
                 </div>
 
-                <div className="border-t pt-6 flex gap-3">
-                  {onLoadStatement && (
+                <div className="border-t pt-6">
+                  <div className="flex gap-3 mb-3">
+                    <button
+                      onClick={() => handleExportCSV(selectedStatement)}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Export CSV
+                    </button>
+                  </div>
+                  <div className="flex gap-3">
+                    {onLoadStatement && (
+                      <button
+                        onClick={() => {
+                          onLoadStatement(selectedStatement);
+                          onClose();
+                        }}
+                        className="flex-1 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                      >
+                        Load Statement
+                      </button>
+                    )}
                     <button
                       onClick={() => {
-                        onLoadStatement(selectedStatement);
-                        onClose();
+                        setStatementToDelete(selectedStatement.id);
+                        setShowDeleteConfirm(true);
                       }}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                     >
-                      Load Statement
+                      Delete
                     </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      setStatementToDelete(selectedStatement.id);
-                      setShowDeleteConfirm(true);
-                    }}
-                    className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                  >
-                    Delete
-                  </button>
+                  </div>
                 </div>
               </div>
             ) : (
