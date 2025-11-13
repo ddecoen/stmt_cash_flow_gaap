@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { StoredCashFlowStatement } from '../types';
-import { getStatements, deleteStatement, getStatementCount } from '../utils/storage/statementStorage';
+import { getStatements, deleteStatement } from '../utils/storage/statementStorage';
 
 interface StatementHistoryProps {
   onClose: () => void;
