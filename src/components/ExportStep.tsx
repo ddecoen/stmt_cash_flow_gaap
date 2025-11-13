@@ -1,11 +1,22 @@
-import { CashFlowStatement } from '../types';
+import { useState } from 'react';
+import { CashFlowStatement, ExtractedData, BalanceInputs } from '../types';
+import { saveStatement } from '../utils/storage/statementStorage';
 
 interface ExportStepProps {
   cashFlowStatement: CashFlowStatement;
+  extractedData: ExtractedData;
+  balanceInputs: BalanceInputs;
   onBack: () => void;
 }
 
-function ExportStep({ cashFlowStatement, onBack }: ExportStepProps) {
+function ExportStep({ cashFlowStatement, extractedData, balanceInputs, onBack }: ExportStepProps) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [periodLabel, setPeriodLabel] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [notes, setNotes] = useState('');
   const formatCurrency = (amount: number) => {
     const formatted = Math.abs(amount).toLocaleString('en-US', {
       minimumFractionDigits: 2,
@@ -92,6 +103,45 @@ function ExportStep({ cashFlowStatement, onBack }: ExportStepProps) {
     window.print();
   };
 
+  const handleSaveToHistory = async () => {
+    if (Math.abs(variance) >= 1000) {
+      setSaveError(`Cannot save: variance ($${Math.abs(variance).toFixed(2)}) exceeds $1,000 threshold. Only reconciled statements can be saved.`);
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      await saveStatement({
+        cashFlowStatement,
+        extractedData,
+        balanceInputs,
+        variance,
+        metadata: {
+          periodLabel: periodLabel || undefined,
+          companyName: companyName || undefined,
+          notes: notes || undefined,
+        },
+      });
+
+      setSaveSuccess(true);
+      setShowSaveModal(false);
+      
+      // Reset form
+      setPeriodLabel('');
+      setCompanyName('');
+      setNotes('');
+
+      // Hide success message after 5 seconds
+      setTimeout(() => setSaveSuccess(false), 5000);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to save statement');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const renderLineItem = (item: typeof cashFlowStatement.operatingActivities[0]) => {
     const isTotal = item.description.toLowerCase().includes('net cash');
     const isSubheading = item.amount === 0 && !isTotal;
@@ -140,15 +190,40 @@ function ExportStep({ cashFlowStatement, onBack }: ExportStepProps) {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Summary</h2>
         </div>
-        <button
-          onClick={handleExportCSV}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors print:hidden flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          Export CSV
-        </button>
+        <div className="flex gap-3 print:hidden">
+          {saveSuccess && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg animate-fade-in">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              Saved to history
+            </div>
+          )}
+          <button
+            onClick={() => setShowSaveModal(true)}
+            disabled={Math.abs(variance) >= 1000}
+            className={`px-6 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+              Math.abs(variance) >= 1000
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+            title={Math.abs(variance) >= 1000 ? 'Cannot save: variance exceeds $1,000' : 'Save to history'}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            Save to History
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -317,6 +392,101 @@ function ExportStep({ cashFlowStatement, onBack }: ExportStepProps) {
           </button>
         </div>
       </div>
+
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 print:hidden">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Save to History</h3>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Period Label (optional)
+                </label>
+                <input
+                  type="text"
+                  value={periodLabel}
+                  onChange={(e) => setPeriodLabel(e.target.value)}
+                  placeholder="e.g., Q1 2024, Jan-Mar 2024"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Name (optional)
+                </label>
+                <input
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  placeholder="e.g., Acme Corporation"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notes (optional)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add any notes about this statement..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <div className="text-sm text-blue-800">
+                    <p className="font-medium mb-1">Statement Variance: {formatCurrency(variance)}</p>
+                    <p>Only statements with variance less than $1,000 can be saved to history.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {saveError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{saveError}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setSaveError(null);
+                }}
+                disabled={isSaving}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveToHistory}
+                disabled={isSaving}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSaving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Statement'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
