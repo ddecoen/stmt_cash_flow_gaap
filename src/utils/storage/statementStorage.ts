@@ -46,7 +46,7 @@ export async function saveStatement(
   const transaction = db.transaction(STORE_NAME, 'readwrite');
   const store = transaction.objectStore(STORE_NAME);
 
-  const id = `stmt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const id = `stmt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   const storedStatement: StoredCashFlowStatement = {
     id,
     timestamp: new Date(),
