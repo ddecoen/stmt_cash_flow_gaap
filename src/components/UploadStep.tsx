@@ -93,11 +93,31 @@ function UploadStep({
       complete: (results) => {
         console.log('Income Statement Parse Results:', results);
         console.log('First row sample:', results.data[0]);
+        console.log('Available headers:', results.meta?.fields);
         const data: IncomeStatementData[] = [];
+        
+        // Find the amount column (could be 'Amount' or a date like 'Q4 2025')
+        const headers = results.meta?.fields || [];
+        const amountColumn = headers.find((h: string) => 
+          h.toLowerCase() === 'amount' || 
+          h.match(/Q\d+\s+\d{4}/) || // Matches "Q4 2025" format
+          (h.match(/\d{4}/) && !h.toLowerCase().includes('financial')) // Matches year but not "Financial Row"
+        );
+        
+        console.log('📊 Detected amount column:', amountColumn || 'Not found');
         
         results.data.forEach((row: any) => {
           const accountName = row['Financial Row'] || row['financial row'] || row['FinancialRow'] || '';
-          const amount = row['Amount'] || row['amount'] || '';
+          
+          // Try to get amount from detected column or fallback
+          let amount = '';
+          if (amountColumn) {
+            amount = row[amountColumn];
+          }
+          // Fallback to standard names
+          if (!amount) {
+            amount = row['Amount'] || row['amount'] || '';
+          }
           
           if (accountName && accountName.trim() && amount && amount.toString().trim()) {
             const cleanAmount = amount.toString().replace(/[$,()\s]/g, '').trim();
@@ -117,8 +137,9 @@ function UploadStep({
         console.log('Data length:', data.length);
         if (data.length === 0) {
           console.error('⚠️ No income statement data parsed! Check CSV format and headers.');
-          console.error('Available headers:', results.meta?.fields);
-          alert('Warning: No data was found in the Income Statement CSV.\n\nExpected headers: "Financial Row" and "Amount"\n\nPlease check the file format and ensure it has the correct headers.');
+          console.error('Available headers:', headers);
+          console.error('Detected amount column:', amountColumn);
+          alert('Warning: No data was found in the Income Statement CSV.\n\nExpected: "Financial Row" column and an amount column\nAvailable headers: ' + headers.join(', ') + '\n\nDetected amount column: ' + (amountColumn || 'None'));
         }
         onIncomeStatementUpload(data);
       },
