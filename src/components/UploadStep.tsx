@@ -63,6 +63,11 @@ function UploadStep({
         
         console.log('Parsed Balance Sheet Data:', data);
         console.log('Data length:', data.length);
+        if (data.length === 0) {
+          console.error('⚠️ No balance sheet data parsed! Check CSV format and headers.');
+          console.error('Available headers:', results.meta?.fields);
+          alert('Warning: No data was found in the Balance Sheet CSV.\n\nExpected headers: "Financial Row" and "Variance"\n\nPlease check the file format and ensure it has the correct headers.');
+        }
         onBalanceSheetUpload(data);
       },
     });
@@ -110,6 +115,11 @@ function UploadStep({
         
         console.log('Parsed Income Statement Data:', data);
         console.log('Data length:', data.length);
+        if (data.length === 0) {
+          console.error('⚠️ No income statement data parsed! Check CSV format and headers.');
+          console.error('Available headers:', results.meta?.fields);
+          alert('Warning: No data was found in the Income Statement CSV.\n\nExpected headers: "Financial Row" and "Amount"\n\nPlease check the file format and ensure it has the correct headers.');
+        }
         onIncomeStatementUpload(data);
       },
     });

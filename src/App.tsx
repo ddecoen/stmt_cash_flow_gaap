@@ -7,6 +7,8 @@ import GenerateStep from './components/GenerateStep';
 import ExportStep from './components/ExportStep';
 import WizardNavigation from './components/WizardNavigation';
 import StatementHistory from './components/StatementHistory';
+// Import diagnostics to expose to console
+import './utils/storage/diagnostics';
 
 function App() {
   const [currentStep, setCurrentStep] = useState<WizardStep>('upload');

@@ -25,8 +25,13 @@ function StatementHistory({ onClose, onLoadStatement }: StatementHistoryProps) {
     try {
       // Get statements with variance less than 1000
       const data = await getStatements({ maxVariance: 1000 });
+      console.log('📊 Loaded statements from storage:', data.length);
+      if (data.length === 0) {
+        console.log('ℹ️ No saved statements found in IndexedDB');
+      }
       setStatements(data);
     } catch (err) {
+      console.error('❌ Error loading statements:', err);
       setError(err instanceof Error ? err.message : 'Failed to load statements');
     } finally {
       setIsLoading(false);
