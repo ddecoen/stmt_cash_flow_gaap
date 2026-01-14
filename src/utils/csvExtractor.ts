@@ -33,11 +33,13 @@ export const extractDataFromCSVs = (
     'net loss',
   ]);
 
-  const depreciation = findAccount(incomeStatement, [
-    '65910 - depreciation',
-    'depreciation',
-    'amortization',
-  ]);
+  // Use balance sheet accumulated depreciation change instead of income statement
+  // This captures the actual depreciation expense regardless of GL allocation
+  const depreciation = Math.abs(getBalanceSheetChange(balanceSheet, [
+    'accumulated depreciation',
+    'accum depreciation',
+    'accumulated amortization',
+  ]));
 
   const accountsReceivableChange = -getBalanceSheetChange(balanceSheet, [
     '12001 - accounts receivable - trade',
