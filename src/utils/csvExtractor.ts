@@ -35,11 +35,25 @@ export const extractDataFromCSVs = (
 
   // Use balance sheet accumulated depreciation change instead of income statement
   // This captures the actual depreciation expense regardless of GL allocation
-  const depreciation = Math.abs(getBalanceSheetChange(balanceSheet, [
+  // Sum all accumulated depreciation accounts (furniture + computer equipment)
+  const adFurniture = getBalanceSheetChange(balanceSheet, [
+    '15210 - ad - furniture and equipment',
+    'ad - furniture and equipment',
+  ]);
+  
+  const adComputerEquipment = getBalanceSheetChange(balanceSheet, [
+    '15220 - ad - computer equipment',
+    'ad - computer equipment',
+  ]);
+  
+  // Also check for general accumulated depreciation accounts
+  const generalAccumDepr = getBalanceSheetChange(balanceSheet, [
     'accumulated depreciation',
     'accum depreciation',
     'accumulated amortization',
-  ]));
+  ]);
+  
+  const depreciation = Math.abs(adFurniture + adComputerEquipment + generalAccumDepr);
 
   const accountsReceivableChange = -getBalanceSheetChange(balanceSheet, [
     '12001 - accounts receivable - trade',
