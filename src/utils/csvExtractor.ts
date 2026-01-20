@@ -164,6 +164,12 @@ export const extractDataFromCSVs = (
 
   const stockIssuance = commonStockChange + apicChange;
 
+  const openingBalanceEquity = getBalanceSheetChange(balanceSheet, [
+    '3200 - opening balance',
+    'opening balance',
+    'opening balance equity',
+  ]);
+
   return {
     netIncome,
     depreciation,
@@ -178,5 +184,6 @@ export const extractDataFromCSVs = (
     debtProceeds,
     debtRepayments,
     stockIssuance,
+    openingBalanceEquity,
   };
 };
