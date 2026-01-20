@@ -55,12 +55,23 @@ export const extractDataFromCSVs = (
   
   const depreciation = Math.abs(adFurniture + adComputerEquipment + generalAccumDepr);
 
-  const accountsReceivableChange = -getBalanceSheetChange(balanceSheet, [
+  // Sum all accounts receivable accounts (trade + other)
+  const arTrade = getBalanceSheetChange(balanceSheet, [
     '12001 - accounts receivable - trade',
     'accounts receivable - trade',
+  ]);
+  
+  const arOther = getBalanceSheetChange(balanceSheet, [
+    '12002 - accounts receivable - other',
+    'accounts receivable - other',
+  ]);
+  
+  const arGeneral = getBalanceSheetChange(balanceSheet, [
     'accounts receivable',
     'receivables',
   ]);
+  
+  const accountsReceivableChange = -(arTrade + arOther + arGeneral);
 
   const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
     'total other current asset',
