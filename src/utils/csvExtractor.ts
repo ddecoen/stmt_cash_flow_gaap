@@ -164,6 +164,12 @@ export const extractDataFromCSVs = (
 
   const stockIssuance = commonStockChange + apicChange;
 
+  const preferredStockIssuance = getBalanceSheetChange(balanceSheet, [
+    '30008 - series b-2 preferred stock',
+    'series b-2 preferred stock',
+    'series b-2',
+  ]);
+
   const openingBalanceEquity = getBalanceSheetChange(balanceSheet, [
     '3200 - opening balance',
     'opening balance',
@@ -184,6 +190,7 @@ export const extractDataFromCSVs = (
     debtProceeds,
     debtRepayments,
     stockIssuance,
+    preferredStockIssuance,
     openingBalanceEquity,
   };
 };
