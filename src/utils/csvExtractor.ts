@@ -58,20 +58,13 @@ export const extractDataFromCSVs = (
   // Sum all accounts receivable accounts (trade + other)
   const arTrade = getBalanceSheetChange(balanceSheet, [
     '12001 - accounts receivable - trade',
-    'accounts receivable - trade',
   ]);
   
   const arOther = getBalanceSheetChange(balanceSheet, [
     '12002 - accounts receivable - other',
-    'accounts receivable - other',
   ]);
   
-  const arGeneral = getBalanceSheetChange(balanceSheet, [
-    'accounts receivable',
-    'receivables',
-  ]);
-  
-  const accountsReceivableChange = -(arTrade + arOther + arGeneral);
+  const accountsReceivableChange = -(arTrade + arOther);
 
   const prepaidAndOtherCurrentAssetsChange = -getBalanceSheetChange(balanceSheet, [
     'total other current asset',
