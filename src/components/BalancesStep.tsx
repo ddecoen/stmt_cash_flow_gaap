@@ -177,6 +177,14 @@ function BalancesStep({ extractedData, onSubmit, onBack }: BalancesStepProps) {
                 <span className="text-gray-600">Proceeds from Stock Issuance:</span>
                 <span className="font-medium text-gray-900">{formatCurrency(extractedData.stockIssuance)}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Proceeds from Series B-2 Preferred Stock:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.preferredStockIssuance)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Proceeds from Series C Preferred Stock:</span>
+                <span className="font-medium text-gray-900">{formatCurrency(extractedData.seriesCPreferredStockIssuance)}</span>
+              </div>
             </div>
           </div>
         </div>

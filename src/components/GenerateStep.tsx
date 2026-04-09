@@ -45,7 +45,7 @@ function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: Gene
       { description: 'Net cash used in investing activities', amount: -extractedData.capitalExpenditures, indentLevel: 0 },
     ];
 
-    const netCashFromFinancing = extractedData.debtProceeds - extractedData.debtRepayments + extractedData.stockIssuance + extractedData.preferredStockIssuance + extractedData.openingBalanceEquity;
+    const netCashFromFinancing = extractedData.debtProceeds - extractedData.debtRepayments + extractedData.stockIssuance + extractedData.preferredStockIssuance + extractedData.seriesCPreferredStockIssuance + extractedData.openingBalanceEquity;
     const financingActivities: CashFlowLineItem[] = [];
 
     if (extractedData.debtProceeds > 0) {
@@ -59,6 +59,9 @@ function GenerateStep({ extractedData, balanceInputs, onGenerate, onBack }: Gene
     }
     if (extractedData.preferredStockIssuance > 0) {
       financingActivities.push({ description: 'Proceeds from Series B-2 preferred stock issuance', amount: extractedData.preferredStockIssuance, indentLevel: 0 });
+    }
+    if (extractedData.seriesCPreferredStockIssuance > 0) {
+      financingActivities.push({ description: 'Proceeds from Series C preferred stock issuance', amount: extractedData.seriesCPreferredStockIssuance, indentLevel: 0 });
     }
     if (extractedData.openingBalanceEquity !== 0) {
       financingActivities.push({ description: 'Opening balance equity adjustment (system migration)', amount: extractedData.openingBalanceEquity, indentLevel: 0 });

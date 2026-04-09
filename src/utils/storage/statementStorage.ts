@@ -5,6 +5,20 @@ const DB_VERSION = 1;
 const STORE_NAME = 'statements';
 
 /**
+ * Backfill default values for fields added after initial release.
+ * This ensures statements saved before a schema change still work.
+ */
+function migrateStatement(stmt: StoredCashFlowStatement): StoredCashFlowStatement {
+  return {
+    ...stmt,
+    extractedData: {
+      ...stmt.extractedData,
+      seriesCPreferredStockIssuance: stmt.extractedData.seriesCPreferredStockIssuance ?? 0,
+    },
+  };
+}
+
+/**
  * Initialize IndexedDB for storing cash flow statements
  */
 function openDatabase(): Promise<IDBDatabase> {
@@ -85,8 +99,8 @@ export async function getStatements(
       db.close();
       let statements = request.result as StoredCashFlowStatement[];
 
-      // Convert timestamp strings to Date objects
-      statements = statements.map(stmt => ({
+      // Convert timestamp strings to Date objects and migrate old records
+      statements = statements.map(stmt => migrateStatement({
         ...stmt,
         timestamp: new Date(stmt.timestamp),
       }));
@@ -140,8 +154,10 @@ export async function getStatement(id: string): Promise<StoredCashFlowStatement 
       const statement = request.result as StoredCashFlowStatement | undefined;
       if (statement) {
         statement.timestamp = new Date(statement.timestamp);
+        resolve(migrateStatement(statement));
+      } else {
+        resolve(null);
       }
-      resolve(statement || null);
     };
 
     request.onerror = () => {
