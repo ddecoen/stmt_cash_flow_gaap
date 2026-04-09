@@ -171,9 +171,8 @@ export const extractDataFromCSVs = (
   ]);
 
   const seriesCPreferredStockIssuance = getBalanceSheetChange(balanceSheet, [
-    '30009 - series c preferred stock',
+    '30014 - series c preferred stock',
     'series c preferred stock',
-    'series c',
   ]);
 
   const openingBalanceEquity = getBalanceSheetChange(balanceSheet, [
