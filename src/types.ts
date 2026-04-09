@@ -39,6 +39,7 @@ export interface ExtractedData {
   debtRepayments: number;
   stockIssuance: number;
   preferredStockIssuance: number;
+  seriesCPreferredStockIssuance: number;
   openingBalanceEquity: number;
 }
 
